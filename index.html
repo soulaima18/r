@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>قارئ النصوص العربية</title>
+    <style>
+        :root {
+            --primary-color: #4a54f1;
+            --secondary-color: #f5f5f5;
+            --text-color: #333;
+            --bg-color: #fff;
+            --border-color: #ddd;
+            --container-shadow: 0 0 15px rgba(0,0,0,0.1);
+        }
+
+        [data-theme="dark"] {
+            --primary-color: #6c74f2;
+            --secondary-color: #2a2a2a;
+            --text-color: #eee;
+            --bg-color: #1a1a1a;
+            --border-color: #444;
+            --container-shadow: 0 0 15px rgba(0,0,0,0.4);
+        }
+
+        body {
+            font-family: Arial, Tahoma, sans-serif;
+            text-align: right;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            transition: all 0.3s ease;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background-color: var(--bg-color);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: var(--container-shadow);
+        }
+
+        h1 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .upload-area {
+            border: 2px dashed var(--border-color);
+            padding: 25px;
+            text-align: center;
+            margin: 20px 0;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .upload-area.active {
+            border-color: var(--primary-color);
+            background-color: rgba(74, 84, 241, 0.05);
+        }
+
+        .upload-area p {
+            margin: 10px 0;
+        }
+
+        .text-input {
+            width: 100%;
+            height: 200px;
+            margin: 20px 0;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: Arial, Tahoma, sans-serif;
+            font-size: 16px;
+            resize: vertical;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        .text-input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+            box-shadow: 0 0 8px rgba(74, 84, 241, 0.3);
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 16px;
+            margin: 5px;
+        }
+
+        .btn:hover {
+            background-color: #3a44e1;
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: #e5e5e5;
+        }
+
+        .output-container {
+            margin-top: 30px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            background-color: var(--secondary-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .output-content {
+            padding: 20px;
+            min-height: 300px;
+            max-height: 500px;
+            overflow-y: auto;
+            line-height: 1.6;
+            font-size: 18px;
+            text-align: justify;
+        }
+
+        .controls {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: var(--secondary-color);
+            border-radius: 8px;
+        }
+
+        .play-controls {
+            display: flex;
+            align-items: center;
+        }
+
+        .speed-controls {
+            display: flex;
+            align-items: center;
+        }
+
+        .speed-controls label {
+            margin-left: 10px;
+        }
+
+        select {
+            padding: 8px 10px;
+            border-radius: 5px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .pagination {
+            display: flex;
+            align-items: center;
+        }
+
+        .pagination span {
+            margin: 0 10px;
+        }
+
+        .theme-toggle {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            text-align: center;
+            line-height: 40px;
+            background-color: var(--bg-color);
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 5px solid var(--secondary-color);
+            border-top: 5px solid var(--primary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .highlight {
+            background-color: rgba(74, 84, 241, 0.2);
+            padding: 2px 0;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .btn {
+                padding: 10px 15px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="theme-toggle" id="themeToggle">🌓</div>
+    
+    <div class="container">
+        <h1>قارئ النصوص العربية</h1>
+        
+        <div class="upload-area" id="uploadArea">
+            <p>قم بسحب ملف PDF أو ملف نصي هنا</p>
+            <p>أو</p>
+            <input type="file" id="fileInput" accept=".pdf,.txt,.text" hidden>
+            <button class="btn" id="browseButton">اختر ملفًا</button>
+        </div>
+        
+        <p>أو أدخل النص العربي مباشرة:</p>
+        <textarea class="text-input" id="textInput" placeholder="أدخل النص العربي هنا..."></textarea>
+        
+        <div>
+            <button class="btn" id="processButton">معالجة النص</button>
+        </div>
+        
+        <div class="output-container">
+            <div class="output-header">
+                <span>النص المستخرج</span>
+                <span id="currentPage">الصفحة 1 من 1</span>
+            </div>
+            <div class="output-content" id="outputContent"></div>
+        </div>
+        
+        <div class="controls">
+            <div class="play-controls">
+                <button class="btn" id="playButton" disabled>بدء القراءة</button>
+                <button class="btn btn-secondary" id="prevButton" disabled>الصفحة السابقة</button>
+                <button class="btn btn-secondary" id="nextButton" disabled>الصفحة التالية</button>
+            </div>
+            
+            <div class="speed-controls">
+                <label for="speedControl">سرعة القراءة:</label>
+                <select id="speedControl">
+                    <option value="0.5">بطيء (0.5x)</option>
+                    <option value="0.75">أقل من المتوسط (0.75x)</option>
+                    <option value="1" selected>متوسط (1x)</option>
+                    <option value="1.25">أعلى من المتوسط (1.25x)</option>
+                    <option value="1.5">سريع (1.5x)</option>
+                    <option value="2">سريع جدًا (2x)</option>
+                </select>
+            </div>
+        </div>
+        
+        <div class="loading" id="loadingIndicator">
+            <div class="spinner"></div>
+            <p>جاري معالجة الملف...</p>
+        </div>
+    </div>
+
+    <script>
+        // Variables for text processing and speech
+        let pages = [''];
+        let currentPageIndex = 0;
+        let isPlaying = false;
+        let speech = null;
+        let currentChunks = [];
+        let currentChunkIndex = 0;
+        let arabicVoice = null;
+
+        // DOM elements
+        const textInput = document.getElementById('textInput');
+        const fileInput = document.getElementById('fileInput');
+        const browseButton = document.getElementById('browseButton');
+        const uploadArea = document.getElementById('uploadArea');
+        const processButton = document.getElementById('processButton');
+        const outputContent = document.getElementById('outputContent');
+        const playButton = document.getElementById('playButton');
+        const prevButton = document.getElementById('prevButton');
+        const nextButton = document.getElementById('nextButton');
+        const speedControl = document.getElementById('speedControl');
+        const loadingIndicator = document.getElementById('loadingIndicator');
+        const currentPageDisplay = document.getElementById('currentPage');
+        const themeToggle = document.getElementById('themeToggle');
+
+        // Initialize
+        function init() {
+            // Setup event listeners
+            browseButton.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', handleFileUpload);
+            processButton.addEventListener('click', processText);
+            playButton.addEventListener('click', togglePlayPause);
+            prevButton.addEventListener('click', goToPrevPage);
+            nextButton.addEventListener('click', goToNextPage);
+            speedControl.addEventListener('change', updateSpeed);
+            themeToggle.addEventListener('click', toggleTheme);
+            
+            // Setup drag and drop
+            uploadArea.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                uploadArea.classList.add('active');
+            });
+            
+            uploadArea.addEventListener('dragleave', () => {
+                uploadArea.classList.remove('active');
+            });
+            
+            uploadArea.addEventListener('drop', (e) => {
+                e.preventDefault();
+                uploadArea.classList.remove('active');
+                
+                if (e.dataTransfer.files.length) {
+                    fileInput.files = e.dataTransfer.files;
+                    handleFileUpload();
+                }
+            });
+            
+            // Initialize Speech Synthesis
+            initSpeechSynthesis();
+            
+            // Check for saved theme
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            }
+        }
+
+        // Initialize Speech Synthesis
+        function initSpeechSynthesis() {
+            speech = new SpeechSynthesisUtterance();
+            speech.lang = 'ar';
+            
+            speech.onend = handleSpeechEnd;
+            
+            // Get available voices when they are loaded
+            window.speechSynthesis.onvoiceschanged = () => {
+                const voices = window.speechSynthesis.getVoices();
+                arabicVoice = selectBestVoiceForArabic(voices);
+                
+                if (arabicVoice) {
+                    console.log(`Selected voice: ${arabicVoice.name} (${arabicVoice.lang})`);
+                    speech.voice = arabicVoice;
+                } else {
+                    console.log('No Arabic voice found, using default');
+                }
+            };
+            
+            // Initial attempt to get voices
+            if (window.speechSynthesis.getVoices().length > 0) {
+                const voices = window.speechSynthesis.getVoices();
+                arabicVoice = selectBestVoiceForArabic(voices);
+                if (arabicVoice) speech.voice = arabicVoice;
+            }
+        }
+
+        // Select the best voice for Arabic
+        function selectBestVoiceForArabic(voices) {
+            // First try: Find a voice with 'ar-SA' locale
+            let voice = voices.find(v => v.lang === 'ar-SA');
+            
+            // Second try: Find any Arabic locale
+            if (!voice) {
+                voice = voices.find(v => v.lang.startsWith('ar'));
+            }
+            
+            // Third try: Find a voice with Arabic in its name
+            if (!voice) {
+                voice = voices.find(v => 
+                    v.name.toLowerCase().includes('arab') || 
+                    v.name.toLowerCase().includes('اَلْعَرَبِيَّةُ') ||
+                    v.name.toLowerCase().includes('العربية')
+                );
+            }
+            
+            return voice;
+        }
+
+        // Handle file upload
+        function handleFileUpload() {
+            const file = fileInput.files[0];
+            if (!file) return;
+            
+            // For simplicity in this example, we'll only handle .txt files
+            // In a complete app, we would need to handle PDF files differently
+            const fileName = file.name.toLowerCase();
+            
+            if (fileName.endsWith('.txt') || fileName.endsWith('.text')) {
+                loadingIndicator.style.display = 'block';
+                
+                const reader = new FileReader();
+                
+                reader.onload = (e) => {
+                    const content = e.target.result;
+                    textInput.value = content;
+                    processText();
+                    loadingIndicator.style.display = 'none';
+                };
+                
+                reader.onerror = () => {
+                    alert('حدث خطأ أثناء قراءة الملف');
+                    loadingIndicator.style.display = 'none';
+                };
+                
+                reader.readAsText(file);
+            } else if (fileName.endsWith('.pdf')) {
+                alert('تنويه: معالجة ملفات PDF تتم عادة على الخادم، في هذه النسخة يمكنك فقط معالجة الملفات النصية أو إدخال النص مباشرة');
+                loadingIndicator.style.display = 'none';
+            } else {
+                alert('الرجاء تحميل ملف بتنسيق PDF أو نص فقط');
+            }
+        }
+
+        // Process text input
+        function processText() {
+            const text = textInput.value.trim();
+            if (!text) {
+                alert('الرجاء إدخال نص أو تحميل ملف');
+                return;
+            }
+            
+            // Simple processing: Split by empty lines to make pages
+            pages = text.split(/\n\s*\n/).filter(page => page.trim().length > 0);
+            
+            if (pages.length === 0) {
+                pages = [text]; // If no empty lines, treat as one page
+            }
+            
+            // Reset to first page
+            currentPageIndex = 0;
+            updatePageDisplay();
+            
+            // Enable controls
+            enableControls();
+        }
+
+        // Update page display
+        function updatePageDisplay() {
+            if (pages.length === 0) {
+                outputContent.innerHTML = '';
+                currentPageDisplay.textContent = 'لا يوجد محتوى';
+                return;
+            }
+            
+            const pageContent = pages[currentPageIndex];
+            
+            // Format with paragraph breaks
+            const formattedContent = pageContent
+                .split('\n')
+                .map(line => line.trim() ? `<p>${line}</p>` : '')
+                .join('');
+            
+            outputContent.innerHTML = formattedContent;
+            currentPageDisplay.textContent = `الصفحة ${currentPageIndex + 1} من ${pages.length}`;
+            
+            // Prepare for reading
+            prepareForReading();
+        }
+
+        // Enable controls
+        function enableControls() {
+            playButton.disabled = false;
+            prevButton.disabled = currentPageIndex <= 0;
+            nextButton.disabled = currentPageIndex >= pages.length - 1;
+        }
+
+        // Disable controls
+        function disableControls() {
+            playButton.disabled = true;
+            prevButton.disabled = true;
+            nextButton.disabled = true;
+        }
+
+        // Go to previous page
+        function goToPrevPage() {
+            if (currentPageIndex > 0) {
+                // Stop any ongoing speech
+                if (isPlaying) {
+                    stopSpeech();
+                }
+                
+                currentPageIndex--;
+                updatePageDisplay();
+                enableControls();
+            }
+        }
+
+        // Go to next page
+        function goToNextPage() {
+            if (currentPageIndex < pages.length - 1) {
+                // Stop any ongoing speech
+                if (isPlaying) {
+                    stopSpeech();
+                }
+                
+                currentPageIndex++;
+                updatePageDisplay();
+                enableControls();
+            }
+        }
+
+        // Toggle play/pause
+        function togglePlayPause() {
+            if (isPlaying) {
+                pauseSpeech();
+            } else {
+                startReading();
+            }
+            
+            updatePlayButtonState();
+        }
+
+        // Update play button state
+        function updatePlayButtonState() {
+            playButton.textContent = isPlaying ? 'إيقاف القراءة' : 'بدء القراءة';
+        }
+
+        // Start reading
+        function startReading() {
+            // Cancel any ongoing speech
+            window.speechSynthesis.cancel();
+            
+            // Check if we have content to read
+            if (pages.length === 0 || !pages[currentPageIndex]) {
+                return;
+            }
+            
+            isPlaying = true;
+            
+            // Prepare text chunks for smoother reading
+            prepareForReading();
+            
+            // Start speaking the first chunk
+            speakCurrentChunk();
+        }
+
+        // Prepare text for reading
+        function prepareForReading() {
+            if (!pages[currentPageIndex]) return;
+            
+            // Split text into manageable chunks for better speech performance
+            const pageText = pages[currentPageIndex].replace(/\n/g, ' ');
+            currentChunks = splitTextIntoChunks(pageText);
+            currentChunkIndex = 0;
+        }
+
+        // Split text into chunks
+        function splitTextIntoChunks(text) {
+            // First split by sentence terminators
+            const sentences = text.split(/([.!?،؛؟])/);
+            
+            // Recombine the sentences with their terminators
+            const fullSentences = [];
+            for (let i = 0; i < sentences.length - 1; i += 2) {
+                fullSentences.push(sentences[i] + (sentences[i+1] || ''));
+            }
+            
+            // If there's an odd item left, add it
+            if (sentences.length % 2 !== 0) {
+                fullSentences.push(sentences[sentences.length - 1]);
+            }
+            
+            // Now group sentences into chunks
+            const chunks = [];
+            let currentChunk = '';
+            
+            for (const sentence of fullSentences) {
+                if (sentence.trim().length === 0) continue;
+                
+                if (currentChunk.length + sentence.length < 200) {
+                    currentChunk += sentence + ' ';
+                } else {
+                    if (currentChunk.trim()) {
+                        chunks.push(currentChunk.trim());
+                    }
+                    currentChunk = sentence + ' ';
+                }
+            }
+            
+            // Add the last chunk if not empty
+            if (currentChunk.trim()) {
+                chunks.push(currentChunk.trim());
+            }
+            
+            return chunks;
+        }
+
+        // Speak current chunk
+        function speakCurrentChunk() {
+            if (currentChunkIndex < currentChunks.length) {
+                const chunk = currentChunks[currentChunkIndex];
+                
+                speech.text = chunk;
+                speech.rate = parseFloat(speedControl.value);
+                
+                // Always try to use Arabic voice if available
+                if (arabicVoice) {
+                    speech.voice = arabicVoice;
+                }
+                
+                window.speechSynthesis.speak(speech);
+                
+                // Highlight current text being read (simplified)
+                highlightCurrentChunk(chunk);
+            } else {
+                // We've reached the end of all chunks
+                isPlaying = false;
+                updatePlayButtonState();
+                
+                // If auto-advance is enabled and there are more pages
+                if (currentPageIndex < pages.length - 1) {
+                    goToNextPage();
+                    // Option: auto-start reading the next page
+                    // setTimeout(startReading, 1000);
+                }
+            }
+        }
+
+        // Highlight the text being read
+        function highlightCurrentChunk(chunk) {
+            // Simple implementation - just show first few words of chunk
+            const previewText = chunk.split(' ').slice(0, 3).join(' ') + '...';
+            console.log(`Reading: ${previewText}`);
+            
+            // A more advanced implementation would find and highlight the text in the DOM
+        }
+
+        // Handle speech end event
+        function handleSpeechEnd() {
+            currentChunkIndex++;
+            
+            if (isPlaying) {
+                speakCurrentChunk();
+            }
+        }
+
+        // Pause speech
+        function pauseSpeech() {
+            isPlaying = false;
+            window.speechSynthesis.cancel();
+        }
+
+        // Stop speech
+        function stopSpeech() {
+            isPlaying = false;
+            window.speechSynthesis.cancel();
+            updatePlayButtonState();
+        }
+
+        // Update speech rate
+        function updateSpeed() {
+            speech.rate = parseFloat(speedControl.value);
+            
+            // If currently speaking, restart with new rate
+            if (isPlaying) {
+                window.speechSynthesis.cancel();
+                speakCurrentChunk();
+            }
+        }
+
+        // Toggle between light and dark theme
+        function toggleTheme() {
+            const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+            const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+            
+            document.documentElement.setAttribute('data-theme', newTheme);
+            localStorage.setItem('theme', newTheme);
+        }
+
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>

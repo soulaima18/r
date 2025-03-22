@@ -1,0 +1,267 @@
+/**
+ * قارئ النصوص العربية - ملف الأنماط
+ */
+
+:root {
+    --primary-color: #4a54f1;
+    --secondary-color: #f5f5f5;
+    --text-color: #333;
+    --bg-color: #fff;
+    --border-color: #ddd;
+    --container-shadow: 0 0 15px rgba(0,0,0,0.1);
+}
+
+[data-theme="dark"] {
+    --primary-color: #6c74f2;
+    --secondary-color: #2a2a2a;
+    --text-color: #eee;
+    --bg-color: #1a1a1a;
+    --border-color: #444;
+    --container-shadow: 0 0 15px rgba(0,0,0,0.4);
+}
+
+body {
+    font-family: Arial, Tahoma, sans-serif;
+    text-align: right;
+    margin: 0;
+    padding: 20px;
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+    transition: all 0.3s ease;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    background-color: var(--bg-color);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: var(--container-shadow);
+}
+
+h1 {
+    color: var(--primary-color);
+    margin-bottom: 20px;
+}
+
+.upload-area {
+    border: 2px dashed var(--border-color);
+    padding: 25px;
+    text-align: center;
+    margin: 20px 0;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.upload-area.active {
+    border-color: var(--primary-color);
+    background-color: rgba(74, 84, 241, 0.05);
+}
+
+.upload-area p {
+    margin: 10px 0;
+}
+
+.text-input {
+    width: 100%;
+    height: 200px;
+    margin: 20px 0;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: Arial, Tahoma, sans-serif;
+    font-size: 16px;
+    resize: vertical;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.text-input:focus {
+    border-color: var(--primary-color);
+    outline: none;
+    box-shadow: 0 0 8px rgba(74, 84, 241, 0.3);
+}
+
+.btn {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 16px;
+    margin: 5px;
+}
+
+.btn:hover {
+    background-color: #3a44e1;
+    transform: translateY(-2px);
+}
+
+.btn:active {
+    transform: translateY(0);
+}
+
+.btn:disabled {
+    background-color: #a0a0a0;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+    background-color: #e5e5e5;
+}
+
+.btn-secondary:disabled {
+    background-color: var(--secondary-color);
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.output-container {
+    margin-top: 30px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.output-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 20px;
+    background-color: var(--secondary-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.output-content {
+    padding: 20px;
+    min-height: 300px;
+    max-height: 500px;
+    overflow-y: auto;
+    line-height: 1.6;
+    font-size: 18px;
+    text-align: justify;
+}
+
+.controls {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+    padding: 15px;
+    background-color: var(--secondary-color);
+    border-radius: 8px;
+}
+
+.play-controls {
+    display: flex;
+    align-items: center;
+}
+
+.speed-controls {
+    display: flex;
+    align-items: center;
+}
+
+.speed-controls label {
+    margin-left: 10px;
+}
+
+select {
+    padding: 8px 10px;
+    border-radius: 5px;
+    border: 1px solid var(--border-color);
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+}
+
+.pagination span {
+    margin: 0 10px;
+}
+
+.theme-toggle {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    text-align: center;
+    line-height: 40px;
+    background-color: var(--bg-color);
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+.loading {
+    display: none;
+    text-align: center;
+    padding: 20px;
+}
+
+.spinner {
+    border: 5px solid var(--secondary-color);
+    border-top: 5px solid var(--primary-color);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 20px auto;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.highlight {
+    background-color: rgba(74, 84, 241, 0.2);
+    padding: 2px 0;
+}
+
+/* RTL Support - Very important for Arabic */
+[dir="rtl"] {
+    text-align: right;
+    direction: rtl;
+}
+
+[dir="rtl"] .output-content {
+    direction: rtl;
+    unicode-bidi: embed;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .container {
+        padding: 15px;
+    }
+    
+    .controls {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .btn {
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+}
