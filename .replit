@@ -1,0 +1,52 @@
+modules = ["python-3.11", "dotnet-8.0", "angular-node-20", "elixir-1_17", "go-1.21", "go-1.19", "python-base-3.13", "python-base-3.12", "python-3.12", "python-3.10", "qbasic", "pyright", "web", "python-with-prybar-3.10", "nodejs-with-prybar-18", "docker", "bash", "bun-1.2"]
+
+[nix]
+channel = "stable-24_05"
+
+[deployment]
+deploymentTarget = "autoscale"
+run = ["gunicorn", "--bind", "0.0.0.0:5000", "main:app"]
+
+[workflows]
+runButton = "Start Flask App"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Start application"
+
+[[workflows.workflow]]
+name = "Start application"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "gunicorn --bind 0.0.0.0:5000 --reuse-port --reload main:app"
+waitForPort = 5000
+
+[[workflows.workflow]]
+name = "Start Flask App"
+author = 40761673
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "gunicorn --bind 0.0.0.0:5000 --workers 1 --threads 1 main:app"
+
+[[ports]]
+localPort = 5000
+externalPort = 80
+
+[[ports]]
+localPort = 8080
+externalPort = 8080
